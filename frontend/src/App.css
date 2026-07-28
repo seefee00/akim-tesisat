@@ -75,6 +75,8 @@
   font-weight: 700;
   margin-top: 1.5mm;
   color: #000000;
+  font-feature-settings: "zero" 0;
+  font-variant-numeric: normal;
 }
 
 .label-full .label-price {
