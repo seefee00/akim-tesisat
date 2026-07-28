@@ -1,0 +1,99 @@
+{
+  "theme": "light",
+  "typography": {
+    "headings": "Cabinet Grotesk",
+    "body": "IBM Plex Sans",
+    "monospace": "IBM Plex Mono",
+    "rules": [
+      "Use IBM Plex Mono for all prices (e.g., ₺ 149.90) to ensure tabular lining and perfect vertical alignment in the UI.",
+      "Headings should use tracking-tight for a precise, technical feel.",
+      "Label print layouts MUST use high-legibility fonts (IBM Plex Sans) with pure black color for crisp printing.",
+      "Avoid using 'Inter' for headings to maintain a distinctive look."
+    ]
+  },
+  "colors": {
+    "archetype": "ARCHETYPE 4: SWISS & HIGH-CONTRAST",
+    "palette": {
+      "background": "#F8F9FA",
+      "surface": "#FFFFFF",
+      "primary": "#4338CA",
+      "primaryHover": "#3730A3",
+      "accent": "#059669",
+      "destructive": "#DC2626",
+      "text": "#111827",
+      "textMuted": "#6B7280",
+      "border": "#E5E7EB",
+      "printBlack": "#000000"
+    },
+    "rules": [
+      "Do not use dark colors as gradients.",
+      "Use stark contrast for the data table to ensure high scanability.",
+      "Borders should be crisp (1px solid border) instead of heavy shadows. This gives a utilitarian, inventory-focused feel."
+    ]
+  },
+  "visual_enhancers": {
+    "shadows": "Minimal. Use 1px borders instead of heavy drop shadows to create structure.",
+    "borders": "Square or very slightly rounded (rounded-md max) for a utilitarian feel. The 'Grid Borders' micro-theme is highly recommended for the dashboard.",
+    "surfaces": "Solid flat colors. No glassmorphism in the main dashboard to keep the data clear. Use flat backgrounds with a hard bottom border for headers."
+  },
+  "components": {
+    "buttons": "Sharp rectangular or slightly rounded-md. Solid primary color for main actions (Etiket Bas, Ürün Ekle).",
+    "table": "High-density data table. Compact rows (h-12 or 48px). Sticky header. Right-align pricing. Fixed checkbox column on the left for bulk selection.",
+    "inputs": "Shadcn UI standard inputs, customized with crisp borders and square corners.",
+    "toasts": "Use 'sonner' for all success/error notifications (e.g., 'Ürün eklendi', 'Giriş başarısız')."
+  },
+  "layouts": {
+    "login": "Split screen. Left: Login form centered vertically and horizontally. Right: Full height image of a minimalist retail store.",
+    "dashboard": "Sidebar navigation (narrow) + expansive main content area for the data table. Ensure the table takes up maximum width.",
+    "print_preview": "A dedicated hidden or modal route that visually represents an A4 page using strict millimeter measurements. It must render perfectly when window.print() is called."
+  },
+  "print_css_rules": {
+    "page": "@page { size: A4 portrait; margin: 0; }",
+    "container": "width: 210mm; min-height: 297mm; padding: 14mm 5mm; display: grid; gap: 0; box-sizing: border-box; background: white;",
+    "full_label_grid": "grid-template-columns: repeat(2, 100mm); grid-auto-rows: 30mm; justify-content: center;",
+    "half_label_grid": "grid-template-columns: repeat(4, 50mm); grid-auto-rows: 30mm; justify-content: center;",
+    "label_style": "display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px dashed #e5e7eb; box-sizing: border-box; overflow: hidden; page-break-inside: avoid;",
+    "hide_ui": "@media print { body * { visibility: hidden; } .print-section, .print-section * { visibility: visible; } .print-section { position: absolute; left: 0; top: 0; } }"
+  },
+  "motion": {
+    "hover": "Subtle background shifts on table rows.",
+    "transitions": "Fast (150ms) ease-in-out for buttons. Do not use 'transition: all' as it breaks transforms."
+  },
+  "accessibility": {
+    "contrast": "Ensure all text, especially prices and labels, passes WCAG AA standards.",
+    "data_testids": "MANDATORY on all buttons, inputs, form submissions, and table rows (e.g., data-testid='login-button', data-testid='print-labels-btn')."
+  },
+  "media": {
+    "icons": "lucide-react (Clean and standard for admin interfaces)",
+    "images": [
+      {
+        "url": "https://images.pexels.com/photos/5531709/pexels-photo-5531709.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Minimalist retail shop interior",
+        "category": "Login Screen Background"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Language MUST be strictly Turkish everywhere (Giriş Yap, Ürünler, Etiket Bas, Ürün Adı, Fiyat, Stok vs.).",
+    "Currency MUST be Turkish Lira (₺) formatted correctly (e.g., 150.00 ₺).",
+    "The core value of this app is the PRINTING FUNCTIONALITY. You MUST implement a dedicated Print area using the exact CSS rules provided in 'print_css_rules'.",
+    "Full Label specifications: 100mm width x 30mm height. (Total 16 per A4 sheet, arranged in 2 columns and 8 rows).",
+    "Half Label specifications: 50mm width x 30mm height. (Total 36 per A4 sheet, arranged in 4 columns and 9 rows).",
+    "Labels should ONLY display Product Name and Price. Do not include barcodes or QR codes.",
+    "Implement a robust data table for product tracking with add, edit, delete capabilities. Pre-fill with some dummy Turkish retail products.",
+    "Allow selecting multiple products via checkboxes to print them in bulk. Include a global 'Select All' checkbox.",
+    "Use standard HTML/Tailwind for the Print layout (avoid complex Shadcn components inside the printable area to prevent injected layout issues).",
+    "Ensure the login screen requires a username and password (dummy validation is fine, but the flow must exist)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic outputs. Make creative, distinctive frontends. Avoid 'AI slop'.",
+    "Do not use dark colors as gradients.",
+    "Don't make generic centered layouts. Create depth through layered design elements.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "NEVER use placeholder images like via.placeholder.com. Use the provided image URLs.",
+    "Prioritize using pre-existing Shadcn components. Use sonner for toasts.",
+    "Every interaction needs micro-animations (hover states, transitions). Static = dead.",
+    "Do NOT center align the app container (.App { text-align: center; }).",
+    "All interactive and key informational elements MUST include a data-testid attribute."
+  ]
+}
