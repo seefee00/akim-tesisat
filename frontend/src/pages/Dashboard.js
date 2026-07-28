@@ -121,7 +121,7 @@ export default function Dashboard() {
 
   const confirmDelete = async () => {
     try {
-      await api.delete(`/products/${deleteTarget._id}`);
+      await api.delete(`/products/${deleteTarget.id}`);
       toast.success("Ürün silindi");
       setDeleteTarget(null);
       load();
