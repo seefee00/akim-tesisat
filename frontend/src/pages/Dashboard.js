@@ -302,6 +302,7 @@ export default function Dashboard() {
                 </TableHead>
                 <TableHead>Ürün Adı</TableHead>
                 <TableHead>Kod</TableHead>
+                <TableHead className="text-center">Etiket Tipi</TableHead>
                 <TableHead className="text-right">Fiyat</TableHead>
                 <TableHead className="text-right">Stok</TableHead>
                 <TableHead className="w-28 text-center">Etiket Adedi</TableHead>
@@ -311,13 +312,13 @@ export default function Dashboard() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12 text-[#6B7280]">
+                  <TableCell colSpan={8} className="text-center py-12 text-[#6B7280]">
                     Yükleniyor…
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12 text-[#6B7280]">
+                  <TableCell colSpan={8} className="text-center py-12 text-[#6B7280]">
                     Ürün bulunamadı.
                   </TableCell>
                 </TableRow>
@@ -340,6 +341,18 @@ export default function Dashboard() {
                       <TableCell className="font-medium text-[#111827]">{p.name}</TableCell>
                       <TableCell className="font-mono text-xs text-[#6B7280]">
                         {p.sku || "—"}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span
+                          data-testid={`label-type-badge-${p.id}`}
+                          className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${
+                            p.label_type === "half"
+                              ? "bg-[#059669]/10 text-[#059669]"
+                              : "bg-[#4338CA]/10 text-[#4338CA]"
+                          }`}
+                        >
+                          {p.label_type === "half" ? "Yarım" : "Tam"}
+                        </span>
                       </TableCell>
                       <TableCell className="text-right font-mono text-[#111827]">
                         {formatTL(p.price)}

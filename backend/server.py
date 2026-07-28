@@ -89,6 +89,7 @@ class ProductBase(BaseModel):
     price: float
     stock: int = 0
     sku: Optional[str] = ""
+    label_type: str = "full"
 
 class ProductCreate(ProductBase):
     pass
@@ -124,6 +125,7 @@ def serialize_product(doc: dict) -> dict:
         "price": doc.get("price", 0),
         "stock": doc.get("stock", 0),
         "sku": doc.get("sku", ""),
+        "label_type": doc.get("label_type", "full"),
         "created_at": doc.get("created_at", ""),
     }
 

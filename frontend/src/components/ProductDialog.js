@@ -16,6 +16,7 @@ export default function ProductDialog({ open, onOpenChange, initial, onSave }) {
   const [price, setPrice] = useState(initial?.price ?? "");
   const [stock, setStock] = useState(initial?.stock ?? 0);
   const [sku, setSku] = useState(initial?.sku || "");
+  const [labelType, setLabelType] = useState(initial?.label_type || "full");
   const [saving, setSaving] = useState(false);
 
   const submit = async (e) => {
@@ -26,6 +27,7 @@ export default function ProductDialog({ open, onOpenChange, initial, onSave }) {
       price: parseFloat(price) || 0,
       stock: parseInt(stock) || 0,
       sku: sku.trim(),
+      label_type: labelType,
     });
     setSaving(false);
   };
@@ -83,6 +85,34 @@ export default function ProductDialog({ open, onOpenChange, initial, onSave }) {
               value={sku}
               onChange={(e) => setSku(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Etiket Tipi</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { v: "full", t: "Tam Etiket", s: "100×30mm · 16/A4" },
+                { v: "half", t: "Yarım Etiket", s: "50×30mm · 36/A4" },
+              ].map((opt) => {
+                const active = labelType === opt.v;
+                return (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setLabelType(opt.v)}
+                    data-testid={`label-type-${opt.v}`}
+                    aria-pressed={active}
+                    className={`rounded-md border p-3 text-left transition-colors ${
+                      active
+                        ? "border-[#4338CA] bg-[#4338CA]/5 ring-1 ring-[#4338CA]"
+                        : "border-[#E5E7EB] hover:bg-[#F8F9FA]"
+                    }`}
+                  >
+                    <span className="block text-sm font-medium text-[#111827]">{opt.t}</span>
+                    <span className="block text-xs font-mono text-[#6B7280]">{opt.s}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <DialogFooter>
             <Button
