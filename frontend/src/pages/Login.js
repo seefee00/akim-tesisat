@@ -39,7 +39,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-[#F8F9FA]">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
       {/* Form side */}
       <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
@@ -123,21 +123,6 @@ export default function Login() {
             >
               {isRegister ? "Giriş yapın" : "Kayıt olun"}
             </button>
-          </p>
-        </div>
-      </div>
-
-      {/* Image side */}
-      <div className="hidden lg:block relative">
-        <img
-          src="https://images.pexels.com/photos/5531709/pexels-photo-5531709.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-          alt="Mağaza"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-[#111827]/30" />
-        <div className="absolute bottom-10 left-10 right-10 text-white">
-          <p className="text-2xl font-heading font-semibold tracking-tight max-w-md">
-            Ürün takibi ve etiket baskısı, tek panelde.
           </p>
         </div>
       </div>
