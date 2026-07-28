@@ -31,7 +31,74 @@ export default function PrintPreview({ type, items, onClose }) {
 
   const pages = chunk(labels, cfg.perPage);
 
-  const doPrint = () => window.print();
+  const esc = (s) =>
+    String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  const buildHtml = () => {
+    const isFull = type === "full";
+    const cols = isFull ? 2 : 4;
+    const colW = isFull ? "100mm" : "50mm";
+    const nameSize = isFull ? "15pt" : "9pt";
+    const priceSize = isFull ? "17pt" : "11pt";
+
+    const pagesHtml = pages
+      .map((page) => {
+        const labelsHtml = page
+          .map(
+            (l) =>
+              `<div class="label"><span class="name">${esc(
+                l.name
+              )}</span><span class="price">${esc(formatTL(l.price))}</span></div>`
+          )
+          .join("");
+        return `<div class="a4"><div class="grid">${labelsHtml}</div></div>`;
+      })
+      .join("");
+
+    return `<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8">
+<title>Etiket Baskı</title>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #fff; }
+  body { font-family: "IBM Plex Sans", Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .a4 { width: 210mm; min-height: 297mm; padding: 13mm 5mm; page-break-after: always; }
+  .a4:last-child { page-break-after: auto; }
+  .grid { display: grid; grid-template-columns: repeat(${cols}, ${colW}); grid-auto-rows: 30mm; justify-content: center; }
+  .label { width: ${colW}; height: 30mm; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; padding: 1mm 2mm; border: 1px dashed #cfcfcf; page-break-inside: avoid; color: #000; }
+  .name { font-weight: 600; line-height: 1.15; font-size: ${nameSize}; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .price { font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: ${priceSize}; margin-top: 1.5mm; }
+</style></head><body>${pagesHtml}</body></html>`;
+  };
+
+  const doPrint = () => {
+    if (labels.length === 0) return;
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("aria-hidden", "true");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(buildHtml());
+    doc.close();
+    const cleanup = () => {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    };
+    setTimeout(() => {
+      try {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch (e) {
+        console.error("print error", e);
+      }
+      setTimeout(cleanup, 1500);
+    }, 350);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-[#111827]/60 overflow-auto print-overlay">
