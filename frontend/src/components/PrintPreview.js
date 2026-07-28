@@ -66,7 +66,7 @@ export default function PrintPreview({ type, items, onClose }) {
   .a4:last-child { page-break-after: auto; }
   .grid { display: grid; grid-template-columns: repeat(${cols}, ${colW}); grid-auto-rows: 30mm; justify-content: center; border-right: 3px solid #000; border-bottom: 3px solid #000; }
   .label { width: ${colW}; height: 30mm; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; padding: 1mm 2mm; border-top: 3px solid #000; border-left: 3px solid #000; page-break-inside: avoid; color: #000; }
-  .name { font-weight: 600; line-height: 1.15; font-size: ${nameSize}; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .name { font-weight: 700; line-height: 1.15; font-size: ${nameSize}; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .price { font-family: "IBM Plex Sans", Arial, sans-serif; font-weight: 700; font-size: ${priceSize}; margin-top: 1.5mm; font-variant-numeric: tabular-nums; }
 </style></head><body>${pagesHtml}</body></html>`;
   };
