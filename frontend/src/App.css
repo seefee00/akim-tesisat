@@ -37,6 +37,8 @@
   overflow: hidden;
   page-break-inside: avoid;
   border: 3px solid #111827;
+  margin-right: -3px;
+  margin-bottom: -3px;
   padding: 1mm 2mm;
   text-align: center;
   color: #000000;
