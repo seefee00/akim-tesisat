@@ -48,6 +48,7 @@ export default function Dashboard() {
   const [editing, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [printType, setPrintType] = useState(null); // 'full' | 'half' | null
+  const [typeFilter, setTypeFilter] = useState("all"); // 'all' | 'full' | 'half'
   const fileRef = useRef(null);
 
   const load = async () => {
@@ -68,11 +69,22 @@ export default function Dashboard() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter(
-      (p) => p.name.toLowerCase().includes(q) || (p.sku || "").toLowerCase().includes(q)
-    );
-  }, [products, search]);
+    return products.filter((p) => {
+      const matchesType = typeFilter === "all" || (p.label_type || "full") === typeFilter;
+      if (!matchesType) return false;
+      if (!q) return true;
+      return p.name.toLowerCase().includes(q) || (p.sku || "").toLowerCase().includes(q);
+    });
+  }, [products, search, typeFilter]);
+
+  const fullCount = useMemo(
+    () => products.filter((p) => (p.label_type || "full") === "full").length,
+    [products]
+  );
+  const halfCount = useMemo(
+    () => products.filter((p) => (p.label_type || "full") === "half").length,
+    [products]
+  );
 
   const selectedIds = Object.keys(selected);
   const allSelected = filtered.length > 0 && filtered.every((p) => selected[p.id]);
@@ -264,6 +276,40 @@ export default function Dashboard() {
               Ürün Ekle
             </Button>
           </div>
+        </div>
+
+        {/* Grouping menu */}
+        <div className="flex flex-wrap items-center gap-2 mb-4 border-b border-[#E5E7EB]">
+          {[
+            { v: "all", t: "Tüm Ürünler", c: products.length },
+            { v: "full", t: "Tam Etiket", c: fullCount },
+            { v: "half", t: "Yarım Etiket", c: halfCount },
+          ].map((tab) => {
+            const active = typeFilter === tab.v;
+            return (
+              <button
+                key={tab.v}
+                type="button"
+                onClick={() => setTypeFilter(tab.v)}
+                data-testid={`filter-tab-${tab.v}`}
+                aria-pressed={active}
+                className={`relative -mb-px flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                  active
+                    ? "text-[#4338CA] border-b-2 border-[#4338CA]"
+                    : "text-[#6B7280] border-b-2 border-transparent hover:text-[#111827]"
+                }`}
+              >
+                {tab.t}
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs ${
+                    active ? "bg-[#4338CA]/10 text-[#4338CA]" : "bg-[#F1F1F3] text-[#6B7280]"
+                  }`}
+                >
+                  {tab.c}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Bulk print bar */}
