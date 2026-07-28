@@ -8,7 +8,7 @@
   min-height: 297mm;
   background: white;
   box-sizing: border-box;
-  padding: 8mm 5mm;
+  padding: 6mm 4mm;
   box-shadow: 0 0 0 1px #e5e7eb;
 }
 
@@ -16,6 +16,8 @@
   display: grid;
   gap: 0;
   justify-content: center;
+  border-right: 3px solid #111827;
+  border-bottom: 3px solid #111827;
 }
 
 .grid-full {
@@ -36,9 +38,8 @@
   box-sizing: border-box;
   overflow: hidden;
   page-break-inside: avoid;
-  border: 3px solid #111827;
-  margin-right: -3px;
-  margin-bottom: -3px;
+  border-top: 3px solid #111827;
+  border-left: 3px solid #111827;
   padding: 1mm 2mm;
   text-align: center;
   color: #000000;
@@ -128,6 +129,7 @@
   }
 
   .label {
-    border: 3px solid #000000;
+    border-top: 3px solid #000000;
+    border-left: 3px solid #000000;
   }
 }
