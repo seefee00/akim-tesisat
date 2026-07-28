@@ -1,34 +1,130 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+.App {
+  text-align: left;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+/* ---------------- Print / A4 label layout ---------------- */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  box-sizing: border-box;
+  padding: 13mm 5mm;
+  box-shadow: 0 0 0 1px #e5e7eb;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.label-grid {
+  display: grid;
+  gap: 0;
+  justify-content: center;
 }
 
-.App-link {
-    color: #61dafb;
+.grid-full {
+  grid-template-columns: repeat(2, 100mm);
+  grid-auto-rows: 30mm;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.grid-half {
+  grid-template-columns: repeat(4, 50mm);
+  grid-auto-rows: 30mm;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  page-break-inside: avoid;
+  border: 1px dashed #d1d5db;
+  padding: 1mm 2mm;
+  text-align: center;
+  color: #000000;
+}
+
+.label-full {
+  width: 100mm;
+  height: 30mm;
+}
+
+.label-half {
+  width: 50mm;
+  height: 30mm;
+}
+
+.label-name {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-weight: 600;
+  line-height: 1.15;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.label-full .label-name {
+  font-size: 15pt;
+}
+
+.label-half .label-name {
+  font-size: 9pt;
+}
+
+.label-price {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  margin-top: 1.5mm;
+  color: #000000;
+}
+
+.label-full .label-price {
+  font-size: 17pt;
+}
+
+.label-half .label-price {
+  font-size: 11pt;
+}
+
+/* ---------------- Print media ---------------- */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-section,
+  .print-section * {
+    visibility: visible;
+  }
+
+  .print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .print-overlay {
+    background: white !important;
+  }
+
+  .a4-page {
+    box-shadow: none;
+    margin: 0;
+    page-break-after: always;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .label {
+    border: 1px dashed #cccccc;
+  }
 }

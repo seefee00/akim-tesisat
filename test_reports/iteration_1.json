@@ -1,0 +1,38 @@
+{
+  "summary": "Ran 7 backend pytest tests (all pass) and Playwright UI tests. Backend APIs (auth, CRUD, CSV import, auth protection) all work correctly. Frontend login, dashboard load, seeded product listing with ₺ formatting, search, add/edit/delete, select-all checkbox, and CSV import UI all work. However a CRITICAL bug breaks per-row selection and bulk label printing: backend returns product id as '_id' (Pydantic Field alias), but Dashboard.js uses p.id everywhere. Result: all rows get data-testid='product-row-undefined' (duplicate React keys warning), toggleOne uses undefined key, buildPrintItems() finds nothing so PrintPreview never opens.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/products (Product response_model)", "issue": "Pydantic Field(alias='_id') combined with FastAPI default response_model_by_alias=True causes response JSON to expose '_id' instead of 'id'. Frontend expects 'id'. Either serialize by field name (response_model_by_alias=False) or return dict with 'id' key, OR update frontend to use _id. Since serialize_product() already returns a plain dict, the Product response_model wraps it and re-serializes with alias."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Dashboard.js", "issue": "Uses p.id everywhere (data-testid=`product-row-${p.id}`, select-checkbox-${p.id}, qty-input-${p.id}, edit-button-${p.id}, delete-button-${p.id}, selected[p.id], toggleOne(p.id), key={p.id}). But API returns _id, so p.id is undefined for all rows. Causes: (a) React key warning 'Each child in a list should have a unique key prop' visible in console, (b) individual row checkbox clicks toggle selected[undefined] so 1st click selects, 2nd click deselects, and every row shares the same isSel state, (c) 'Seçili Ürün' count reads Object.keys(selected).length so may show 1 not the true count, (d) buildPrintItems() calls products.find(x => x.id === id) which never matches (products have _id only), so Print preview never opens even when items appear selected — clicking 'Tam Etiket'/'Yarım Etiket' with selection either shows the 'lütfen en az bir ürün seçin' toast or opens an empty preview.", "selector": "[data-testid^='product-row-'] etc.", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "Bulk label printing (Tam/Yarım)", "issue": "Print preview never opens with selected rows because of the p.id vs _id mismatch. Full end-to-end bulk-print (core requirement) is currently broken.", "affected_selectors": ["[data-testid='print-full-button']", "[data-testid='print-half-button']", "[data-testid='do-print-button']", "[data-testid='print-label']"]},
+      {"flow": "Per-row qty input", "issue": "qty-input-<id> selectors resolve to qty-input-undefined; multiple duplicates render only after select-all mass-toggle.", "affected_selectors": ["[data-testid^='qty-input-']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_dukkanim_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Fix Product id serialization: quickest fix is to change Product model to `id: str` (no alias) and have serialize_product() return {'id': str(doc['_id']), ...} instead of '_id'. Then update Dashboard.js delete/edit which currently use editing?._id / deleteTarget._id to use .id (and everywhere else the code already uses .id). Alternative: keep _id in payload and change Dashboard.js to use p._id / editing?._id consistently and update all data-testids and helpers.",
+    "After fix, re-verify: individual checkbox selection updates 'Seçili Ürün' count, qty-input-<id> renders per selected row, bulk print Tam/Yarım opens PrintPreview with correct number of labels (sum of qty)."
+  ],
+  "critical_code_review_comments": [
+    "Backend server.py: Product response_model uses Field(alias='_id') with default by_alias=True — this leaks Mongo-style _id into API and breaks the frontend contract. Prefer returning 'id' as a plain string.",
+    "Frontend Dashboard.js key={editing?._id || 'new'} on ProductDialog: mixes _id (works today) with p.id (undefined) — inconsistent id handling across the file.",
+    "server.py: startup uses @app.on_event('startup') which is deprecated in FastAPI; consider lifespan handlers.",
+    "CORS: allow_credentials=True with wildcard-like list is fine here since specific origins are set, but CORS_ORIGINS env variable defined in .env is unused."
+  ],
+  "updated_files": ["/app/backend/tests/test_dukkanim_api.py", "/app/backend/tests/__init__.py"],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "~60% — login/list/search/add/edit/delete/select-all/CSV work; per-row selection and bulk print broken"},
+  "test_credentials": "admin@dukkanim.com / admin123 (matches /app/memory/test_credentials.md)",
+  "seed_data_creation": "Backend auto-seeds 6 Turkish products on startup if empty; tests create/delete TEST_-prefixed products and clean them up.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Root cause of broken bulk print is p.id vs _id mismatch. Once E1 fixes id field to be plain 'id' in API response (or updates frontend to use _id everywhere including in filter/toggle helpers and testids), rerun the Playwright flow: login → click 2 checkboxes → confirm 'Seçili Ürün' shows 2 and 2 qty-input-<id> appear → set qty=3 on first → click print-full-button → expect do-print-button + 4 print-label divs (3+1) → close → click print-half-button → expect labels visible. Backend tests already cover 401 without token, login success/fail, CRUD, CSV import.",
+  "rca of the issue": "Backend Pydantic Product model declares `id: PyObjectId = Field(alias='_id')`. FastAPI serializes response_model with by_alias=True by default so the JSON payload uses '_id'. The React Dashboard was written expecting `p.id` and uses it for selection state keys, data-testid values, and product lookup in buildPrintItems. Consequence: all products get identical undefined id in the frontend, breaking selection & bulk print. Reproduction: login, click any individual product's checkbox — 'Seçili Ürün' stat still shows 0 and no qty input appears. Mitigation: change Product model to expose 'id' (not aliased), OR use response_model_by_alias=False, OR update the frontend to consistently reference _id."
+}
