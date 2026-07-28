@@ -36,7 +36,7 @@
   box-sizing: border-box;
   overflow: hidden;
   page-break-inside: avoid;
-  border: 1px dashed #d1d5db;
+  border: 2px solid #111827;
   padding: 1mm 2mm;
   text-align: center;
   color: #000000;
@@ -126,6 +126,6 @@
   }
 
   .label {
-    border: 1px dashed #cccccc;
+    border: 2px solid #000000;
   }
 }
