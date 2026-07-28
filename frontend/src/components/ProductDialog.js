@@ -90,7 +90,7 @@ export default function ProductDialog({ open, onOpenChange, initial, onSave }) {
             <Label>Etiket Tipi</Label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { v: "full", t: "Tam Etiket", s: "100×30mm · 16/A4" },
+                { v: "full", t: "Tam Etiket", s: "100×30mm · 18/A4" },
                 { v: "half", t: "Yarım Etiket", s: "50×30mm · 36/A4" },
               ].map((opt) => {
                 const active = labelType === opt.v;

@@ -6,7 +6,7 @@ import { Printer, X } from "lucide-react";
 // Full: 100mm x 30mm, 16 per A4 (2 cols x 8 rows)
 // Half: 50mm x 30mm, 36 per A4 (4 cols x 9 rows)
 const CONFIG = {
-  full: { cols: 2, perPage: 16, widthClass: "label-full" },
+  full: { cols: 2, perPage: 18, widthClass: "label-full" },
   half: { cols: 4, perPage: 36, widthClass: "label-half" },
 };
 
@@ -110,7 +110,7 @@ export default function PrintPreview({ type, items, onClose }) {
           </h2>
           <p className="text-sm text-[#6B7280]">
             {labels.length} etiket · {pages.length} sayfa (A4){" "}
-            {type === "full" ? "· 100×30mm · 16/sayfa" : "· 50×30mm · 36/sayfa"}
+            {type === "full" ? "· 100×30mm · 18/sayfa" : "· 50×30mm · 36/sayfa"}
           </p>
         </div>
         <div className="flex items-center gap-3">
