@@ -9,22 +9,33 @@ import { Store, Loader2 } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
+  const [mode, setMode] = useState("login"); // 'login' | 'register'
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("admin@dukkanim.com");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const isRegister = mode === "register";
 
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await api.post("/auth/login", { email, password });
+      const path = isRegister ? "/auth/register" : "/auth/login";
+      const payload = isRegister ? { name, email, password } : { email, password };
+      const { data } = await api.post(path, payload);
       login(data.token, data.user);
-      toast.success("Giriş başarılı");
+      toast.success(isRegister ? "Kayıt başarılı" : "Giriş başarılı");
     } catch (err) {
       toast.error(formatApiError(err.response?.data?.detail) || err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const switchMode = () => {
+    setMode(isRegister ? "login" : "register");
+    setPassword("");
   };
 
   return (
@@ -42,13 +53,28 @@ export default function Login() {
           </div>
 
           <h1 className="text-3xl font-heading font-bold tracking-tight text-[#111827]">
-            Tekrar hoş geldiniz
+            {isRegister ? "Hesap oluştur" : "Tekrar hoş geldiniz"}
           </h1>
           <p className="text-sm text-[#6B7280] mt-2 mb-8">
-            Ürünlerinizi yönetmek ve etiket basmak için giriş yapın.
+            {isRegister
+              ? "Ürünlerinizi yönetmek için yeni bir hesap açın."
+              : "Ürünlerinizi yönetmek ve etiket basmak için giriş yapın."}
           </p>
 
           <form onSubmit={submit} className="space-y-5" data-testid="login-form">
+            {isRegister && (
+              <div className="space-y-2">
+                <Label htmlFor="name">Ad Soyad / Dükkan Adı</Label>
+                <Input
+                  id="name"
+                  data-testid="register-name-input"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Örn. Ahmet / Market ABC"
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">E-posta</Label>
               <Input
@@ -72,6 +98,9 @@ export default function Login() {
                 placeholder="••••••••"
                 required
               />
+              {isRegister && (
+                <p className="text-xs text-[#6B7280]">En az 6 karakter.</p>
+              )}
             </div>
             <Button
               type="submit"
@@ -80,13 +109,20 @@ export default function Login() {
               className="w-full bg-[#4338CA] hover:bg-[#3730A3] h-11"
             >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Giriş Yap
+              {isRegister ? "Kayıt Ol" : "Giriş Yap"}
             </Button>
           </form>
 
-          <p className="text-xs text-[#6B7280] mt-6">
-            Demo: <span className="font-mono">admin@dukkanim.com</span> /{" "}
-            <span className="font-mono">admin123</span>
+          <p className="text-sm text-[#6B7280] mt-6">
+            {isRegister ? "Zaten hesabınız var mı? " : "Hesabınız yok mu? "}
+            <button
+              type="button"
+              onClick={switchMode}
+              data-testid="toggle-auth-mode-button"
+              className="font-medium text-[#4338CA] hover:text-[#3730A3] underline underline-offset-2"
+            >
+              {isRegister ? "Giriş yapın" : "Kayıt olun"}
+            </button>
           </p>
         </div>
       </div>

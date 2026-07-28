@@ -78,6 +78,11 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+class RegisterRequest(BaseModel):
+    name: str = ""
+    email: str
+    password: str
+
 class UserOut(BaseModel):
     id: str
     email: str
@@ -110,6 +115,31 @@ async def login(body: LoginRequest):
         "token": token,
         "user": {"id": str(user["_id"]), "email": user["email"],
                  "name": user.get("name", ""), "role": user.get("role", "user")},
+    }
+
+@api_router.post("/auth/register")
+async def register(body: RegisterRequest):
+    email = body.email.strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Geçerli bir e-posta girin")
+    if not body.password or len(body.password) < 6:
+        raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalı")
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Bu e-posta zaten kayıtlı")
+    doc = {
+        "email": email,
+        "password_hash": hash_password(body.password),
+        "name": (body.name or "").strip() or "Kullanıcı",
+        "role": "user",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    res = await db.users.insert_one(doc)
+    token = create_access_token(str(res.inserted_id), email)
+    return {
+        "token": token,
+        "user": {"id": str(res.inserted_id), "email": email,
+                 "name": doc["name"], "role": "user"},
     }
 
 @api_router.get("/auth/me", response_model=UserOut)
