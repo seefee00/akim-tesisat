@@ -161,12 +161,13 @@ def serialize_product(doc: dict) -> dict:
 
 @api_router.get("/products", response_model=List[Product])
 async def list_products(user: dict = Depends(get_current_user)):
-    docs = await db.products.find().sort("created_at", -1).to_list(2000)
+    docs = await db.products.find({"user_id": user["_id"]}).sort("created_at", -1).to_list(2000)
     return [serialize_product(d) for d in docs]
 
 @api_router.post("/products", response_model=Product)
 async def create_product(body: ProductCreate, user: dict = Depends(get_current_user)):
     doc = body.model_dump()
+    doc["user_id"] = user["_id"]
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
     res = await db.products.insert_one(doc)
     doc["_id"] = res.inserted_id
@@ -175,14 +176,15 @@ async def create_product(body: ProductCreate, user: dict = Depends(get_current_u
 @api_router.put("/products/{product_id}", response_model=Product)
 async def update_product(product_id: str, body: ProductCreate, user: dict = Depends(get_current_user)):
     res = await db.products.find_one_and_update(
-        {"_id": ObjectId(product_id)}, {"$set": body.model_dump()}, return_document=True)
+        {"_id": ObjectId(product_id), "user_id": user["_id"]},
+        {"$set": body.model_dump()}, return_document=True)
     if not res:
         raise HTTPException(status_code=404, detail="Ürün bulunamadı")
     return serialize_product(res)
 
 @api_router.delete("/products/{product_id}")
 async def delete_product(product_id: str, user: dict = Depends(get_current_user)):
-    res = await db.products.delete_one({"_id": ObjectId(product_id)})
+    res = await db.products.delete_one({"_id": ObjectId(product_id), "user_id": user["_id"]})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Ürün bulunamadı")
     return {"ok": True}
@@ -219,6 +221,7 @@ async def import_products(file: UploadFile = File(...), user: dict = Depends(get
             stock = 0
         sku = (find_key(row, "sku", "kod", "barkod") or "").strip()
         docs.append({"name": name, "price": price, "stock": stock, "sku": sku,
+                     "label_type": "full", "user_id": user["_id"],
                      "created_at": datetime.now(timezone.utc).isoformat()})
     if docs:
         await db.products.insert_many(docs)
@@ -245,8 +248,10 @@ async def startup():
     elif not verify_password(admin_password, existing["password_hash"]):
         await db.users.update_one({"email": admin_email},
                                   {"$set": {"password_hash": hash_password(admin_password)}})
-    # seed sample products
-    if await db.products.count_documents({}) == 0:
+    admin = await db.users.find_one({"email": admin_email})
+    admin_id = str(admin["_id"]) if admin else None
+    # seed sample products for admin only
+    if admin_id and await db.products.count_documents({"user_id": admin_id}) == 0:
         samples = [
             {"name": "Filtre Kahve 250g", "price": 149.90, "stock": 24, "sku": "KHV-250"},
             {"name": "Yeşil Çay 100g", "price": 89.50, "stock": 40, "sku": "CAY-100"},
@@ -256,9 +261,15 @@ async def startup():
             {"name": "Doğal Kaya Tuzu 500g", "price": 45.00, "stock": 60, "sku": "TUZ-500"},
         ]
         for s in samples:
+            s["label_type"] = "full"
+            s["user_id"] = admin_id
             s["created_at"] = datetime.now(timezone.utc).isoformat()
         await db.products.insert_many(samples)
-        logger.info("Örnek ürünler eklendi")
+        logger.info("Admin için örnek ürünler eklendi")
+    # migrate any legacy products without owner to admin
+    if admin_id:
+        await db.products.update_many({"user_id": {"$exists": False}},
+                                      {"$set": {"user_id": admin_id}})
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
