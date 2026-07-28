@@ -71,12 +71,11 @@
 }
 
 .label-price {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 700;
   margin-top: 1.5mm;
   color: #000000;
-  font-feature-settings: "zero" 0;
-  font-variant-numeric: normal;
+  font-variant-numeric: tabular-nums;
 }
 
 .label-full .label-price {
