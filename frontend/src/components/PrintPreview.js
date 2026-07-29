@@ -20,15 +20,7 @@ export default function PrintPreview({ type, items, onClose }) {
   const cfg = CONFIG[type];
 
   const priceSize = type === "full" ? "20pt" : "12pt";
-  const getNameSize = (name) => {
-    if (type === "full") return "20pt";
-    const n = (name || "").length;
-    if (n <= 10) return "13pt";
-    if (n <= 18) return "11pt";
-    if (n <= 28) return "9pt";
-    if (n <= 40) return "7.5pt";
-    return "6.5pt";
-  };
+  const getNameSize = () => (type === "full" ? "20pt" : "10pt");
 
   // Expand items by their print quantity into a flat label list
   const labels = useMemo(() => {
