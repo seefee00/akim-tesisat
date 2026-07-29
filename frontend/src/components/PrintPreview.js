@@ -38,8 +38,8 @@ export default function PrintPreview({ type, items, onClose }) {
     const isFull = type === "full";
     const cols = isFull ? 2 : 4;
     const colW = isFull ? "100mm" : "50mm";
-    const nameSize = isFull ? "15pt" : "9pt";
-    const priceSize = isFull ? "17pt" : "11pt";
+    const nameSize = "20pt";
+    const priceSize = "20pt";
 
     const pagesHtml = pages
       .map((page) => {

@@ -66,11 +66,11 @@
 }
 
 .label-full .label-name {
-  font-size: 15pt;
+  font-size: 20pt;
 }
 
 .label-half .label-name {
-  font-size: 9pt;
+  font-size: 20pt;
 }
 
 .label-price {
@@ -82,11 +82,11 @@
 }
 
 .label-full .label-price {
-  font-size: 17pt;
+  font-size: 20pt;
 }
 
 .label-half .label-price {
-  font-size: 11pt;
+  font-size: 20pt;
 }
 
 /* ---------------- Print media ---------------- */
