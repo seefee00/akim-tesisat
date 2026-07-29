@@ -3,7 +3,7 @@ import { formatTL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Printer, X } from "lucide-react";
 
-// Full: 100mm x 30mm, 16 per A4 (2 cols x 8 rows)
+// Full: 100mm x 30mm, 18 per A4 (2 cols x 9 rows)
 // Half: 50mm x 30mm, 36 per A4 (4 cols x 9 rows)
 const CONFIG = {
   full: { cols: 2, perPage: 18, widthClass: "label-full" },
