@@ -19,6 +19,17 @@ function chunk(arr, size) {
 export default function PrintPreview({ type, items, onClose }) {
   const cfg = CONFIG[type];
 
+  const priceSize = type === "full" ? "20pt" : "12pt";
+  const getNameSize = (name) => {
+    if (type === "full") return "20pt";
+    const n = (name || "").length;
+    if (n <= 10) return "13pt";
+    if (n <= 18) return "11pt";
+    if (n <= 28) return "9pt";
+    if (n <= 40) return "7.5pt";
+    return "6.5pt";
+  };
+
   // Expand items by their print quantity into a flat label list
   const labels = useMemo(() => {
     const flat = [];
@@ -38,17 +49,17 @@ export default function PrintPreview({ type, items, onClose }) {
     const isFull = type === "full";
     const cols = isFull ? 2 : 4;
     const colW = isFull ? "100mm" : "50mm";
-    const nameSize = "20pt";
-    const priceSize = "20pt";
 
     const pagesHtml = pages
       .map((page) => {
         const labelsHtml = page
           .map(
             (l) =>
-              `<div class="label"><span class="name">${esc(
+              `<div class="label ${type}"><span class="name" style="font-size:${getNameSize(
                 l.name
-              )}</span><span class="price">${esc(formatTL(l.price))}</span></div>`
+              )}">${esc(l.name)}</span><span class="price" style="font-size:${priceSize}">${esc(
+                formatTL(l.price)
+              )}</span></div>`
           )
           .join("");
         return `<div class="a4"><div class="grid">${labelsHtml}</div></div>`;
@@ -66,7 +77,7 @@ export default function PrintPreview({ type, items, onClose }) {
   .a4:last-child { page-break-after: auto; }
   .grid { display: grid; grid-template-columns: repeat(${cols}, ${colW}); grid-auto-rows: 30mm; justify-content: center; border-right: 3px solid #000; border-bottom: 3px solid #000; }
   .label { width: ${colW}; height: 30mm; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; padding: 1mm 2mm; border-top: 3px solid #000; border-left: 3px solid #000; page-break-inside: avoid; color: #000; }
-  .name { font-weight: 700; line-height: 1.15; font-size: ${nameSize}; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .name { font-weight: 700; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: ${isFull ? 2 : 3}; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; word-break: break-word; max-width: 100%; }
   .price { font-family: "IBM Plex Sans", Arial, sans-serif; font-weight: 700; font-size: ${priceSize}; margin-top: 1.5mm; font-variant-numeric: tabular-nums; }
 </style></head><body>${pagesHtml}</body></html>`;
   };
@@ -136,8 +147,12 @@ export default function PrintPreview({ type, items, onClose }) {
             <div className={`label-grid ${type === "full" ? "grid-full" : "grid-half"}`}>
               {page.map((label, li) => (
                 <div key={li} className={`label ${cfg.widthClass}`} data-testid="print-label">
-                  <span className="label-name">{label.name}</span>
-                  <span className="label-price">{formatTL(label.price)}</span>
+                  <span className="label-name" style={{ fontSize: getNameSize(label.name) }}>
+                    {label.name}
+                  </span>
+                  <span className="label-price" style={{ fontSize: priceSize }}>
+                    {formatTL(label.price)}
+                  </span>
                 </div>
               ))}
             </div>
