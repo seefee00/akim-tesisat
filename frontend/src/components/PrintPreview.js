@@ -44,17 +44,21 @@ export default function PrintPreview({ type, items, onClose }) {
 
     const pagesHtml = pages
       .map((page) => {
-        const labelsHtml = page
-          .map(
-            (l) =>
-              `<div class="label ${type}"><span class="name" style="font-size:${getNameSize(
-                l.name
-              )}">${esc(l.name)}</span><span class="price" style="font-size:${priceSize}">${esc(
-                formatTL(l.price)
-              )}</span></div>`
-          )
-          .join("");
-        return `<div class="a4"><div class="grid">${labelsHtml}</div></div>`;
+        const cells = page.map(
+          (l) =>
+            `<div class="label ${type}"><span class="name" style="font-size:${getNameSize(
+              l.name
+            )}">${esc(l.name)}</span><span class="price" style="font-size:${priceSize}">${esc(
+              formatTL(l.price)
+            )}</span></div>`
+        );
+        const rem = page.length % cols;
+        if (rem !== 0) {
+          for (let i = 0; i < cols - rem; i++) {
+            cells.push('<div class="label empty"></div>');
+          }
+        }
+        return `<div class="a4"><div class="grid">${cells.join("")}</div></div>`;
       })
       .join("");
 
@@ -134,22 +138,29 @@ export default function PrintPreview({ type, items, onClose }) {
 
       {/* Printable area */}
       <div className="print-section flex flex-col items-center gap-6 py-8">
-        {pages.map((page, pi) => (
-          <div key={pi} className="a4-page">
-            <div className={`label-grid ${type === "full" ? "grid-full" : "grid-half"}`}>
-              {page.map((label, li) => (
-                <div key={li} className={`label ${cfg.widthClass}`} data-testid="print-label">
-                  <span className="label-name" style={{ fontSize: getNameSize(label.name) }}>
-                    {label.name}
-                  </span>
-                  <span className="label-price" style={{ fontSize: priceSize }}>
-                    {formatTL(label.price)}
-                  </span>
-                </div>
-              ))}
+        {pages.map((page, pi) => {
+          const rem = page.length % cfg.cols;
+          const fillers = rem === 0 ? 0 : cfg.cols - rem;
+          return (
+            <div key={pi} className="a4-page">
+              <div className={`label-grid ${type === "full" ? "grid-full" : "grid-half"}`}>
+                {page.map((label, li) => (
+                  <div key={li} className={`label ${cfg.widthClass}`} data-testid="print-label">
+                    <span className="label-name" style={{ fontSize: getNameSize(label.name) }}>
+                      {label.name}
+                    </span>
+                    <span className="label-price" style={{ fontSize: priceSize }}>
+                      {formatTL(label.price)}
+                    </span>
+                  </div>
+                ))}
+                {Array.from({ length: fillers }).map((_, fi) => (
+                  <div key={`f${fi}`} className={`label ${cfg.widthClass}`} />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

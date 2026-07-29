@@ -1,0 +1,25 @@
+{
+  "summary": "Verified the last-row grid completion bug fix in PrintPreview.js. Ran 9 UI test cases covering full/half labels with counts that produce partial and complete last rows, plus pagination (>18 full, >36 half). All cells-per-page are multiples of the column count (2 for full, 4 for half), filler cells render with 3px borders and empty text, Yazdır (do-print-button) uses iframe printing and never invokes parent window.print, and there are zero pageerrors. select-all + qty-input regressions also work.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_4.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PrintPreview.js line 49-51: getNameSize is called with an argument (l.name) but the function signature ignores arguments and returns a constant per type; harmless but misleading — remove the arg or make it dynamic.",
+    "PrintPreview.js top comment says 'Full: 16 per A4 (2x8)' but CONFIG uses perPage=18 (2x9). Update the comment to match reality.",
+    "buildHtml() print CSS omits the outer container border-right/border-bottom on .grid class inside the iframe? It DOES include them (line 74) — verified OK.",
+    "Selected state persists across filter tab changes; not a bug per spec but worth noting for UX."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% (9/9)"},
+  "test_credentials": "admin@dukkanim.com / admin123 (from prompt, works)",
+  "seed_data_creation": "None. Used existing 461 seeded products.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Test cases used: full(3)->[4/3/1filler], half(6)->[8/6/2f], full(2)->[2/2/0], half(4)->[4/4/0], full(20)->[18+2], full(21)->[18 + (4/3/1f)], half(40)->[36+4]. Filler cells are div.label without data-testid inside .label-grid; they have borderTopWidth=borderLeftWidth=3px and empty textContent. window.print was stubbed via add_init_script; parent counter stayed 0 across all Yazdır clicks (print goes through iframe).",
+  "rca of the issue": "Previous bug: last partial row rendered fewer cells than column count, so container's border-right and border-bottom (which form the grid's right/bottom outline) did not close the trailing cells and interior border-left/border-top from missing cells were absent, producing an open/incomplete grid at the bottom-right. Fix pads each page's cells to a multiple of cols by appending empty <div class='label empty'/> that share the same 3px border-top+border-left as real labels, restoring full grid closure. Verified visually and via DOM cell counts."
+}
